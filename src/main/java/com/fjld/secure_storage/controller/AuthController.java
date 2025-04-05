@@ -7,25 +7,34 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fjld.secure_storage.dto.AuthRequestDTO;
+import com.fjld.secure_storage.dto.AuthResponseDTO;
 import com.fjld.secure_storage.dto.UserRequestDTO;
-import com.fjld.secure_storage.dto.UserResponseDTO;
 import com.fjld.secure_storage.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
-public class UserController {
+public class AuthController {
 	
 	private final UserService userService;
 	
-	@PostMapping
-    public ResponseEntity<UserResponseDTO> createDocument(@RequestBody UserRequestDTO request) {
+	@PostMapping("/register")
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody UserRequestDTO request) {
 		
-        UserResponseDTO response = userService.createUser(request);
+		AuthResponseDTO response = userService.createUser(request);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+	
+	@PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
+		
+		AuthResponseDTO response = userService.login(request);
+		
+        return ResponseEntity.ok(response);
     }
 
 }

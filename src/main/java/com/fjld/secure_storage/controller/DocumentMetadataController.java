@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fjld.secure_storage.dto.DocumentMetadataRequestDTO;
@@ -46,20 +45,18 @@ public class DocumentMetadataController {
     }
 	
 	@DeleteMapping("/metadata/{metadataUuid}")
-    public ResponseEntity<Void> deleteMetadata(@PathVariable String metadataUuid,
-    											@RequestParam String userUuid) {
+    public ResponseEntity<Void> deleteMetadata(@PathVariable String metadataUuid) {
         
-        documentMetadataService.deleteMetadata(metadataUuid, userUuid);
+        documentMetadataService.deleteMetadata(metadataUuid);
         
         return ResponseEntity.noContent().build();
     }
 	
 	@GetMapping("/{documentUuid}/metadata")
-    public ResponseEntity<List<DocumentMetadataResponseDTO>> getMetadataByDocument(@PathVariable String documentUuid,
-            																		@RequestParam String userUuid) {
+    public ResponseEntity<List<DocumentMetadataResponseDTO>> getMetadataByDocument(@PathVariable String documentUuid) {
         
         List<DocumentMetadataResponseDTO> metadataList = documentMetadataService
-        													.getMetadataByDocument(documentUuid, userUuid);
+        													.getMetadataByDocument(documentUuid);
         
         return ResponseEntity.ok(metadataList);
     }

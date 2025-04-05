@@ -17,6 +17,7 @@ import com.fjld.secure_storage.model.User;
 import com.fjld.secure_storage.repository.DocumentContentRepository;
 import com.fjld.secure_storage.repository.DocumentRepository;
 import com.fjld.secure_storage.repository.UserRepository;
+import com.fjld.secure_storage.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,11 +28,14 @@ public class DocumentService {
 	private final DocumentRepository documentRepository;
 	private final DocumentContentRepository documentContentRepository;
     private final UserRepository userRepository;
+    private final SecurityUtils securityUtils;
     
     @Transactional
     public DocumentResponseDTO createDocument(DocumentRequestDTO request) {
     	
-        User user = userRepository.findById(request.getUserUuid())
+    	String currentUsername = securityUtils.getCurrentUsername();
+    	
+        User user = userRepository.findByUsername(currentUsername)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         Document document = Document.builder()
@@ -59,12 +63,14 @@ public class DocumentService {
     }
     
     @Transactional(readOnly = true)
-    public DocumentResponseDTO getDocumentById(String documentUuid, String userUuid) {
+    public DocumentResponseDTO getDocumentById(String documentUuid) {
+    	
+    	String currentUsername = securityUtils.getCurrentUsername();
     	
         Document document = documentRepository.findById(documentUuid)
             .orElseThrow(() -> new RuntimeException("Document not found"));
         
-        if (!document.getUser().getUuid().equals(userUuid)) {
+        if (!document.getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to access to this document.");
         }
 
@@ -72,9 +78,14 @@ public class DocumentService {
     }
     
     @Transactional(readOnly = true)
-    public List<DocumentResponseDTO> getDocumentsByUser(String userUuid) {
+    public List<DocumentResponseDTO> getDocumentsByUser() {
     	
-        List<Document> documents = documentRepository.findByUserUuid(userUuid);
+    	String currentUsername = securityUtils.getCurrentUsername();
+    	
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    	
+        List<Document> documents = user.getDocuments();        
 
         return documents.stream()
             .map(this::mapToResponseDTO)
@@ -87,7 +98,9 @@ public class DocumentService {
         Document document = documentRepository.findById(documentUuid)
             .orElseThrow(() -> new RuntimeException("Document not found"));
         
-        if (!document.getUser().getUuid().equals(request.getUserUuid())) {
+        String currentUsername = securityUtils.getCurrentUsername();
+        
+        if (!document.getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to update this document.");
         }
 
@@ -113,12 +126,14 @@ public class DocumentService {
     }
     
     @Transactional
-    public void deleteDocument(String documentUuid, String userUuid) {
+    public void deleteDocument(String documentUuid) {
     	
         Document document = documentRepository.findById(documentUuid)
             .orElseThrow(() -> new RuntimeException("Document not found"));
+        
+        String currentUsername = securityUtils.getCurrentUsername();
 
-        if (!document.getUser().getUuid().equals(userUuid)) {
+        if (!document.getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to delete this document.");
         }
 

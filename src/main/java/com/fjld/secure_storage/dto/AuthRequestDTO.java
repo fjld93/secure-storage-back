@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class DocumentMetadataRequestDTO {
+public class AuthRequestDTO {
 	
-	private String name;
-    private String value;
+	private String username;
+    private String password;
 
 }

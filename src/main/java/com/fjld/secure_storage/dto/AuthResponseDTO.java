@@ -6,10 +6,8 @@ import lombok.Setter;
 
 @Getter @Setter
 @Builder
-public class UserResponseDTO {
+public class AuthResponseDTO {
 	
-	private String uuid;
-    private String username;
-    private String email;
+    private String token;
 
 }

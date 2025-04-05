@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fjld.secure_storage.dto.DocumentRequestDTO;
@@ -36,10 +35,9 @@ public class DocumentController {
     }
 	
 	@GetMapping("/{documentUuid}")
-    public ResponseEntity<DocumentResponseDTO> getDocumentById(@PathVariable String documentUuid,
-    															@RequestParam String userUuid) {
+    public ResponseEntity<DocumentResponseDTO> getDocumentById(@PathVariable String documentUuid) {
 		
-        DocumentResponseDTO response = documentService.getDocumentById(documentUuid, userUuid);
+        DocumentResponseDTO response = documentService.getDocumentById(documentUuid);
         
         return ResponseEntity.ok(response);
     }
@@ -54,18 +52,17 @@ public class DocumentController {
     }
 	
 	@DeleteMapping("/{documentUuid}")
-    public ResponseEntity<Void> deleteDocument(@PathVariable String documentUuid,
-    											@RequestParam String userUuid) {
+    public ResponseEntity<Void> deleteDocument(@PathVariable String documentUuid) {
 		
-        documentService.deleteDocument(documentUuid, userUuid);
+        documentService.deleteDocument(documentUuid);
         
         return ResponseEntity.noContent().build();
     }
 	
-	@GetMapping("/user/{userUuid}")
-    public ResponseEntity<List<DocumentResponseDTO>> getDocumentsByUser(@PathVariable String userUuid) {
+	@GetMapping("/user")
+    public ResponseEntity<List<DocumentResponseDTO>> getDocumentsByUser() {
 		
-        List<DocumentResponseDTO> response = documentService.getDocumentsByUser(userUuid);
+        List<DocumentResponseDTO> response = documentService.getDocumentsByUser();
         
         return ResponseEntity.ok(response);
     }

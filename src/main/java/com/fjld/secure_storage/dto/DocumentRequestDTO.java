@@ -10,6 +10,5 @@ public class DocumentRequestDTO {
     private String description;
     private Integer size;
     private String content;
-    private String userUuid;
 
 }

@@ -14,6 +14,7 @@ import com.fjld.secure_storage.model.Document;
 import com.fjld.secure_storage.model.DocumentMetadata;
 import com.fjld.secure_storage.repository.DocumentMetadataRopository;
 import com.fjld.secure_storage.repository.DocumentRepository;
+import com.fjld.secure_storage.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class DocumentMetadataService {
 	
 	private final DocumentMetadataRopository metadataRepository;
     private final DocumentRepository documentRepository;
+    private final SecurityUtils securityUtils;
     
     @Transactional
     public DocumentMetadataResponseDTO createMetadata(String documentUuid, DocumentMetadataRequestDTO request) {
@@ -30,7 +32,10 @@ public class DocumentMetadataService {
         Document document = documentRepository.findById(documentUuid)
             .orElseThrow(() -> new RuntimeException("Document not found"));
         
-        if (!document.getUser().getUuid().equals(request.getUserUuid())) {
+        String currentUsername = securityUtils.getCurrentUsername();
+        
+        if (currentUsername == null 
+        		|| !document.getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to modify this document.");
         }
         
@@ -47,12 +52,15 @@ public class DocumentMetadataService {
     }
     
     @Transactional(readOnly = true)
-    public List<DocumentMetadataResponseDTO> getMetadataByDocument(String documentUuid, String userUuid) {
+    public List<DocumentMetadataResponseDTO> getMetadataByDocument(String documentUuid) {
         
         Document document = documentRepository.findById(documentUuid)
             .orElseThrow(() -> new RuntimeException("Document not found"));
         
-        if (!document.getUser().getUuid().equals(userUuid)) {
+        String currentUsername = securityUtils.getCurrentUsername();
+        
+        if (currentUsername == null 
+        		|| !document.getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to access this document's metadata.");
         }
         
@@ -69,7 +77,10 @@ public class DocumentMetadataService {
         DocumentMetadata metadata = metadataRepository.findById(metadataUuid)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
         
-        if (!metadata.getDocument().getUser().getUuid().equals(request.getUserUuid())) {
+        String currentUsername = securityUtils.getCurrentUsername();
+        
+        if (currentUsername == null 
+        		|| !metadata.getDocument().getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to update this metadata.");
         }
         
@@ -93,12 +104,15 @@ public class DocumentMetadataService {
     }
     
     @Transactional
-    public void deleteMetadata(String metadataUuid, String userUuid) {
+    public void deleteMetadata(String metadataUuid) {
         
         DocumentMetadata metadata = metadataRepository.findById(metadataUuid)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
         
-        if (!metadata.getDocument().getUser().getUuid().equals(userUuid)) {
+        String currentUsername = securityUtils.getCurrentUsername();
+        
+        if (currentUsername == null 
+        		|| !metadata.getDocument().getUser().getUsername().equals(currentUsername)) {
             throw new RuntimeException("You do not have permission to delete this metadata.");
         }
         

@@ -19,9 +19,9 @@ public class DocumentContentController {
 	private final DocumentContentService documentContentService;
 	
 	@GetMapping("/{documentUuid}/content")
-    public ResponseEntity<DocumentContentDTO> getDocumentContent(@PathVariable String documentContentUuid) {
+    public ResponseEntity<DocumentContentDTO> getDocumentContent(@PathVariable String documentUuid) {
 		
-        DocumentContentDTO contentDTO = documentContentService.getDocumentContent(documentContentUuid);
+        DocumentContentDTO contentDTO = documentContentService.getDocumentContent(documentUuid);
         
         return ResponseEntity.ok(contentDTO);
     }
