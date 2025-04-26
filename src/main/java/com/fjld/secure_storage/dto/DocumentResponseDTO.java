@@ -12,7 +12,7 @@ public class DocumentResponseDTO {
     private String uuid;
     private String name;
     private String description;
-    private Integer size;
+    private Long size;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     

@@ -1,5 +1,6 @@
 package com.fjld.secure_storage.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -41,21 +42,24 @@ public class DocumentService {
         Document document = Document.builder()
             .name(request.getName())
             .description(request.getDescription())
-            .size(request.getSize())
+            .size(request.getContent().getSize())
             .createTime(LocalDateTime.now())
             .updateTime(LocalDateTime.now())
             .user(user)
             .build();
 
         Document savedDocument = documentRepository.save(document);
-        
     	
-    	byte[] decodedContent = Base64.getDecoder().decode(request.getContent());
+    	DocumentContent documentContent;
     	
-    	DocumentContent documentContent = DocumentContent.builder()
-                .content(decodedContent)
-                .document(savedDocument)
-                .build();
+		try {
+			documentContent = DocumentContent.builder()
+			        .content(request.getContent().getBytes())
+			        .document(savedDocument)
+			        .build();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not read the file content");
+		}
     	
     	documentContentRepository.save(documentContent);
     	

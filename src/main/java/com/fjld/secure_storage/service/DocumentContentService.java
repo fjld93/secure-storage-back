@@ -1,7 +1,5 @@
 package com.fjld.secure_storage.service;
 
-import java.util.Base64;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,26 +13,31 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class DocumentContentService {
-	
-    private final DocumentRepository documentRepository;
-    private final SecurityUtils securityUtils;
 
-    @Transactional(readOnly = true)
-    public DocumentContentDTO getDocumentContent(String documentUuid) {
-    	
-    	String currentUsername = securityUtils.getCurrentUsername();
-        
-    	Document document = documentRepository.findById(documentUuid)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
-            
-            if (!document.getUser().getUsername().equals(currentUsername)) {
-                throw new RuntimeException("You do not have permission to access to this document.");
-            }
-    	
-    	String encodedContent = Base64.getEncoder()
-    			.encodeToString(document.getContent().getContent());
-    	
-        return new DocumentContentDTO(encodedContent);
-    }
-    
+	private final DocumentRepository documentRepository;
+	private final SecurityUtils securityUtils;
+
+	@Transactional(readOnly = true)
+	public DocumentContentDTO getDocumentContent(String documentUuid) {
+
+		String currentUsername = securityUtils.getCurrentUsername();
+
+		Document document = documentRepository.findById(documentUuid)
+				.orElseThrow(() -> new RuntimeException("Document not found"));
+
+		if (!document.getUser().getUsername().equals(currentUsername)) {
+			throw new RuntimeException("You do not have permission to access to this document.");
+		}
+
+		return mapToContentDTO(document);
+	}
+
+	private DocumentContentDTO mapToContentDTO(Document document) {
+
+		return DocumentContentDTO.builder()
+				.name(document.getName())
+				.content(document.getContent())
+				.build();
+	}
+
 }
