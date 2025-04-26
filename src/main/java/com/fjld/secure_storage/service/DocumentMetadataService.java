@@ -119,7 +119,7 @@ public class DocumentMetadataService {
         metadataRepository.delete(metadata);
     }
     
-    private DocumentMetadataResponseDTO mapToResponseDTO(DocumentMetadata metadata) {
+    public DocumentMetadataResponseDTO mapToResponseDTO(DocumentMetadata metadata) {
     	
         return DocumentMetadataResponseDTO.builder()
             .uuid(metadata.getUuid())

@@ -1,6 +1,7 @@
 package com.fjld.secure_storage.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,6 @@ public class DocumentResponseDTO {
     private Long size;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private List<DocumentMetadataResponseDTO> metadata;
     
 }

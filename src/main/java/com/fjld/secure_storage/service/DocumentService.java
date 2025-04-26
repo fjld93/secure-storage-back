@@ -2,9 +2,7 @@ package com.fjld.secure_storage.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +31,7 @@ public class DocumentService {
 	private final DocumentRepository documentRepository;
 	private final DocumentContentRepository documentContentRepository;
     private final UserRepository userRepository;
+	private final DocumentMetadataService documentMetadataService;
     private final SecurityUtils securityUtils;
     
     @Transactional
@@ -157,6 +156,11 @@ public class DocumentService {
             .size(document.getSize())
             .createTime(document.getCreateTime())
             .updateTime(document.getUpdateTime())
+            .metadata(document.getMetadata() != null
+            	? document.getMetadata().stream()
+                .map(documentMetadataService::mapToResponseDTO)
+                .toList()
+                : List.of())
             .build();
     }
 
