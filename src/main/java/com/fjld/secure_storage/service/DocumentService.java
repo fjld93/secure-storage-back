@@ -6,6 +6,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -82,18 +86,18 @@ public class DocumentService {
     }
     
     @Transactional(readOnly = true)
-    public List<DocumentResponseDTO> getDocumentsByUser() {
+    public Page<DocumentResponseDTO> getDocumentsByUser(int page, int size) {
     	
     	String currentUsername = securityUtils.getCurrentUsername();
     	
         User user = userRepository.findByUsername(currentUsername)
             .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
     	
-        List<Document> documents = user.getDocuments();        
+        Page<Document> documents = documentRepository.findByUserUuid(user.getUuid(), pageable);    
 
-        return documents.stream()
-            .map(this::mapToResponseDTO)
-            .collect(Collectors.toList());
+        return documents.map(this::mapToResponseDTO);
     }
     
     @Transactional

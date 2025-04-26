@@ -2,6 +2,7 @@ package com.fjld.secure_storage.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,56 +26,53 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
 public class DocumentController {
-	
+
 	private final DocumentService documentService;
-	
+
 	@PostMapping
-    public ResponseEntity<DocumentResponseDTO> createDocument(@RequestParam MultipartFile file, 
-													            @RequestParam String name,
-													            @RequestParam String description) {
-		
-		DocumentRequestDTO request = DocumentRequestDTO.builder()
-				.name(name)
-				.description(description)
-				.content(file)
-				.build();		
-		
-        DocumentResponseDTO response = documentService.createDocument(request);
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-	
+	public ResponseEntity<DocumentResponseDTO> createDocument(@RequestParam MultipartFile file,
+			@RequestParam String name, @RequestParam String description) {
+
+		DocumentRequestDTO request = DocumentRequestDTO.builder().name(name).description(description).content(file)
+				.build();
+
+		DocumentResponseDTO response = documentService.createDocument(request);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
 	@GetMapping("/{documentUuid}")
-    public ResponseEntity<DocumentResponseDTO> getDocumentById(@PathVariable String documentUuid) {
-		
-        DocumentResponseDTO response = documentService.getDocumentById(documentUuid);
-        
-        return ResponseEntity.ok(response);
-    }
-	
+	public ResponseEntity<DocumentResponseDTO> getDocumentById(@PathVariable String documentUuid) {
+
+		DocumentResponseDTO response = documentService.getDocumentById(documentUuid);
+
+		return ResponseEntity.ok(response);
+	}
+
 	@PutMapping("/{documentUuid}")
-    public ResponseEntity<DocumentResponseDTO> updateDocument(@PathVariable String documentUuid,
-    															@RequestBody DocumentRequestDTO request) {
-		
-        DocumentResponseDTO response = documentService.updateDocument(documentUuid, request);
-        
-        return ResponseEntity.ok(response);
-    }
-	
+	public ResponseEntity<DocumentResponseDTO> updateDocument(@PathVariable String documentUuid,
+			@RequestBody DocumentRequestDTO request) {
+
+		DocumentResponseDTO response = documentService.updateDocument(documentUuid, request);
+
+		return ResponseEntity.ok(response);
+	}
+
 	@DeleteMapping("/{documentUuid}")
-    public ResponseEntity<Void> deleteDocument(@PathVariable String documentUuid) {
-		
-        documentService.deleteDocument(documentUuid);
-        
-        return ResponseEntity.noContent().build();
-    }
-	
+	public ResponseEntity<Void> deleteDocument(@PathVariable String documentUuid) {
+
+		documentService.deleteDocument(documentUuid);
+
+		return ResponseEntity.noContent().build();
+	}
+
 	@GetMapping("/user")
-    public ResponseEntity<List<DocumentResponseDTO>> getDocumentsByUser() {
-		
-        List<DocumentResponseDTO> response = documentService.getDocumentsByUser();
-        
-        return ResponseEntity.ok(response);
-    }
+	public ResponseEntity<Page<DocumentResponseDTO>> getDocumentsByUser(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size) {
+
+		Page<DocumentResponseDTO> response = documentService.getDocumentsByUser(page, size);
+
+		return ResponseEntity.ok(response);
+	}
 
 }
