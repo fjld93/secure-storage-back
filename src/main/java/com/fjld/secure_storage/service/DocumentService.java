@@ -14,6 +14,9 @@ import org.springframework.util.StringUtils;
 
 import com.fjld.secure_storage.dto.DocumentRequestDTO;
 import com.fjld.secure_storage.dto.DocumentResponseDTO;
+import com.fjld.secure_storage.exception.InternalServerErrorException;
+import com.fjld.secure_storage.exception.PermissionDeniedException;
+import com.fjld.secure_storage.exception.ResourceNotFoundException;
 import com.fjld.secure_storage.model.Document;
 import com.fjld.secure_storage.model.DocumentContent;
 import com.fjld.secure_storage.model.User;
@@ -40,7 +43,7 @@ public class DocumentService {
     	String currentUsername = securityUtils.getCurrentUsername();
     	
         User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Document document = Document.builder()
             .name(request.getName())
@@ -61,7 +64,7 @@ public class DocumentService {
 			        .document(savedDocument)
 			        .build();
 		} catch (IOException e) {
-			throw new RuntimeException("Could not read the file content");
+			throw new InternalServerErrorException("Could not read the file content");
 		}
     	
     	documentContentRepository.save(documentContent);
@@ -75,10 +78,10 @@ public class DocumentService {
     	String currentUsername = securityUtils.getCurrentUsername();
     	
         Document document = documentRepository.findById(documentUuid)
-            .orElseThrow(() -> new RuntimeException("Document not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
         
         if (!document.getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to access to this document.");
+            throw new PermissionDeniedException("You do not have permission to access to this document");
         }
 
         return mapToResponseDTO(document);
@@ -90,7 +93,7 @@ public class DocumentService {
     	String currentUsername = securityUtils.getCurrentUsername();
     	
         User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
     	
@@ -103,12 +106,12 @@ public class DocumentService {
     public DocumentResponseDTO updateDocument(String documentUuid, DocumentRequestDTO request) {
     	
         Document document = documentRepository.findById(documentUuid)
-            .orElseThrow(() -> new RuntimeException("Document not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
         
         if (!document.getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to update this document.");
+            throw new PermissionDeniedException("You do not have permission to update this document");
         }
 
         boolean updated = false;
@@ -136,12 +139,12 @@ public class DocumentService {
     public void deleteDocument(String documentUuid) {
     	
         Document document = documentRepository.findById(documentUuid)
-            .orElseThrow(() -> new RuntimeException("Document not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
 
         if (!document.getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to delete this document.");
+            throw new PermissionDeniedException("You do not have permission to delete this document");
         }
 
         documentRepository.delete(document);

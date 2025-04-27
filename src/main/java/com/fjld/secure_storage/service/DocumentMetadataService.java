@@ -10,6 +10,8 @@ import org.springframework.util.StringUtils;
 
 import com.fjld.secure_storage.dto.DocumentMetadataRequestDTO;
 import com.fjld.secure_storage.dto.DocumentMetadataResponseDTO;
+import com.fjld.secure_storage.exception.PermissionDeniedException;
+import com.fjld.secure_storage.exception.ResourceNotFoundException;
 import com.fjld.secure_storage.model.Document;
 import com.fjld.secure_storage.model.DocumentMetadata;
 import com.fjld.secure_storage.repository.DocumentMetadataRopository;
@@ -30,13 +32,13 @@ public class DocumentMetadataService {
     public DocumentMetadataResponseDTO createMetadata(String documentUuid, DocumentMetadataRequestDTO request) {
         
         Document document = documentRepository.findById(documentUuid)
-            .orElseThrow(() -> new RuntimeException("Document not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
         
         if (currentUsername == null 
         		|| !document.getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to modify this document.");
+            throw new PermissionDeniedException("You do not have permission to modify this document");
         }
         
         DocumentMetadata metadata = DocumentMetadata.builder()
@@ -55,13 +57,13 @@ public class DocumentMetadataService {
     public List<DocumentMetadataResponseDTO> getMetadataByDocument(String documentUuid) {
         
         Document document = documentRepository.findById(documentUuid)
-            .orElseThrow(() -> new RuntimeException("Document not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
         
         if (currentUsername == null 
         		|| !document.getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to access this document's metadata.");
+            throw new PermissionDeniedException("You do not have permission to access this document's metadata");
         }
         
         List<DocumentMetadata> metadataList = metadataRepository.findByDocumentUuid(documentUuid);
@@ -75,13 +77,13 @@ public class DocumentMetadataService {
     public DocumentMetadataResponseDTO updateMetadata(String metadataUuid, DocumentMetadataRequestDTO request) {
         
         DocumentMetadata metadata = metadataRepository.findById(metadataUuid)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
         
         if (currentUsername == null 
         		|| !metadata.getDocument().getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to update this metadata.");
+            throw new PermissionDeniedException("You do not have permission to update this metadata");
         }
         
         boolean updated = false;
@@ -107,13 +109,13 @@ public class DocumentMetadataService {
     public void deleteMetadata(String metadataUuid) {
         
         DocumentMetadata metadata = metadataRepository.findById(metadataUuid)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata not found"));
         
         String currentUsername = securityUtils.getCurrentUsername();
         
         if (currentUsername == null 
         		|| !metadata.getDocument().getUser().getUsername().equals(currentUsername)) {
-            throw new RuntimeException("You do not have permission to delete this metadata.");
+            throw new PermissionDeniedException("You do not have permission to delete this metadata");
         }
         
         metadataRepository.delete(metadata);

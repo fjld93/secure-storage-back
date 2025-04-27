@@ -8,6 +8,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fjld.secure_storage.exception.InvalidCredentialsException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -63,7 +65,7 @@ public class JwtUtils {
 	                .parseSignedClaims(token)
 	                .getPayload();
         } catch (JwtException e) {
-        	return null;
+        	throw new InvalidCredentialsException("Invalid or expired token");
         }
     }
 

@@ -29,6 +29,7 @@ public class SecurityConfig {
 	
 	private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
@@ -46,7 +47,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
             		.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
     }

@@ -2,7 +2,6 @@ package com.fjld.secure_storage.service;
 
 import java.time.LocalDateTime;
 
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fjld.secure_storage.dto.AuthRequestDTO;
 import com.fjld.secure_storage.dto.AuthResponseDTO;
 import com.fjld.secure_storage.dto.UserRequestDTO;
+import com.fjld.secure_storage.exception.DuplicateResourceException;
+import com.fjld.secure_storage.exception.InvalidCredentialsException;
+import com.fjld.secure_storage.exception.ResourceNotFoundException;
 import com.fjld.secure_storage.model.Role;
 import com.fjld.secure_storage.model.User;
 import com.fjld.secure_storage.repository.RoleRepository;
@@ -31,15 +33,15 @@ public class UserService {
     public AuthResponseDTO createUser(UserRequestDTO request) {
 		
 		if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("The username already exist");
+            throw new DuplicateResourceException("The username already exist");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("The email already exist");
+            throw new DuplicateResourceException("The email already exist");
         }
         
         Role defaultRole = roleRepository.findByName("OWNER")
-                .orElseThrow(() -> new IllegalStateException("Role OWNER doens't exists"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role OWNER doens't exists"));
 
         
         User user = User.builder()
@@ -62,10 +64,10 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public AuthResponseDTO login(AuthRequestDTO request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid username or password");
         }
 
         String jwt = jwtUtils.generateToken(user.getUsername());
